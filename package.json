@@ -5,8 +5,8 @@
   "main": "bot.js",
   "type": "module",
   "scripts": {
-    "start": "node bot.js",
-    "dev": "node --watch bot.js"
+    "start": "node Telegram\\ bot/bot.js",
+    "dev": "node --watch Telegram\\ bot/bot.js"
   },
   "keywords": [
     "telegram",

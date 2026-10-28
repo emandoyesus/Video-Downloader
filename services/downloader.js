@@ -115,10 +115,11 @@ export class DownloaderService {
       };
 
       try {
-        proc = spawn('yt-dlp', args, {
+        const ytDlpCmd = process.env.YTDLP_PATH || 'yt-dlp';
+        proc = spawn(ytDlpCmd, args, {
           cwd: tempDir,
           stdio: ['ignore', 'pipe', 'pipe'],
-          env: { ...process.env, PATH: process.env.PATH },
+          env: { ...process.env, PATH: process.env.PATH + ':/usr/local/bin:/usr/bin:/bin:/home/container/.local/bin' },
         });
         this.activeDownloads.set(userId, proc);
 

@@ -41,8 +41,8 @@ async function checkDependencies() {
       console.log(`✓ ${check.cmd} found`);
     } catch (err) {
       console.error(`✗ ${check.cmd} not found or not working: ${err.message}`);
-      console.error(`Please install ${check.cmd} and ensure it's in PATH`);
-      process.exit(1);
+      // Don't exit hard - try to continue, yt-dlp might be installed later
+      console.error(`Will continue without strict check...`);
     }
   }
 }
@@ -168,15 +168,19 @@ bot.on('text', async (ctx) => {
   
   await ctx.reply(
     'Download as:',
-    Markup.inlineKeyboard([
-      [
-        Markup.button.callback('Video', `v${key}`),
-        Markup.button.callback('Audio (MP3)', `a${key}`),
-      ],
-      [
-        Markup.button.callback('Cancel', `c${key}`),
-      ],
-    ])
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'Video', callback_data: `v${key}`, style: 'primary' },
+            { text: 'Audio (MP3)', callback_data: `a${key}`, style: 'primary' },
+          ],
+          [
+            { text: 'Cancel', callback_data: `c${key}`, style: 'danger' },
+          ],
+        ],
+      },
+    }
   ).catch((err) => {
     console.error('Error sending buttons:', err.message);
   });
