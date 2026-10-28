@@ -1,0 +1,28 @@
+{
+  "name": "telegram-video-downloader-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot to download videos from links",
+  "main": "bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "node --watch bot.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "video",
+    "downloader",
+    "yt-dlp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "p-queue": "^8.0.1",
+    "telegraf": "^4.16.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
