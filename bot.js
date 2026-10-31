@@ -441,6 +441,6 @@ process.on('unhandledRejection', (err) => {
 bot.launch().then(() => {
   console.log('Bot is running...');
 }).catch((err) => {
-  console.error('Failed to start bot:', err);
-  process.exit(1);
+  console.error('Failed to start bot:', err.message || err);
+  setTimeout(() => process.exit(1), 2000);
 });

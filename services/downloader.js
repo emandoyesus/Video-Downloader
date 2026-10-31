@@ -115,11 +115,18 @@ export class DownloaderService {
       };
 
       try {
-        const ytDlpCmd = process.env.YTDLP_PATH || 'yt-dlp';
+        const ytDlpCmds = [
+          process.env.YTDLP_PATH,
+          '/home/container/yt-dlp',
+          './yt-dlp',
+          '/usr/local/bin/yt-dlp',
+          'yt-dlp'
+        ].filter(Boolean);
+        let ytDlpCmd = ytDlpCmds[0];
         proc = spawn(ytDlpCmd, args, {
           cwd: tempDir,
           stdio: ['ignore', 'pipe', 'pipe'],
-          env: { ...process.env, PATH: process.env.PATH + ':/usr/local/bin:/usr/bin:/bin:/home/container/.local/bin' },
+          env: { ...process.env, PATH: process.env.PATH + ':/usr/local/bin:/home/container:/usr/bin:/bin:/home/container/.local/bin' },
         });
         this.activeDownloads.set(userId, proc);
 
