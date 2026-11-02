@@ -7,6 +7,7 @@ import { randomUUID } from 'crypto';
 const DOWNLOAD_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
 const MAX_FILESIZE_BYTES = 50 * 1024 * 1024; // 50 MB (Bot API limit)
 const MAX_FILESIZE_ARG = '50M'; // yt-dlp format like
+const THUMBNAIL_ENABLED = true; // Enable thumbnail download for videos
 
 export class DownloaderService {
   constructor() {
@@ -83,6 +84,11 @@ export class DownloaderService {
       args.push('--ignore-errors');
       args.push('--extractor-args', 'youtube:player_client=android,web,mweb');
       args.push('--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+
+      // Add --write-thumbnail for video downloads (not audio)
+      if (!audioOnly && THUMBNAIL_ENABLED) {
+        args.push('--write-thumbnail');
+      }
 
       if (audioOnly) {
         args.push('-f', 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best');
@@ -202,9 +208,10 @@ export class DownloaderService {
               reject(new Error('No file downloaded'));
               return;
             }
-            // Get the largest file
+            // Get the largest file (the video)
             let targetFile = files[0];
             let maxSize = 0;
+            let thumbnailFile = null;
             for (const f of files) {
               const fullPath = path.join(tempDir, f);
               try {
@@ -212,6 +219,12 @@ export class DownloaderService {
                 if (size > maxSize) {
                   maxSize = size;
                   targetFile = f;
+                }
+                // Check if this is a thumbnail file (jpg, webp, png)
+                if (f.endsWith('.jpg') || f.endsWith('.webp') || f.endsWith('.png')) {
+                  if (!thumbnailFile) {
+                    thumbnailFile = f;
+                  }
                 }
               } catch (e) {}
             }
@@ -229,6 +242,12 @@ export class DownloaderService {
               return;
             }
 
+            // Find the thumbnail file path
+            let thumbnailPath = null;
+            if (thumbnailFile) {
+              thumbnailPath = path.join(tempDir, thumbnailFile);
+            }
+
             resolve({
               filePath,
               tempDir,
@@ -236,6 +255,7 @@ export class DownloaderService {
               fileSize,
               audioOnly,
               title: videoTitle || targetFile.replace(/\.[^/.]+$/, ''),
+              thumbnail: thumbnailPath,
             });
           } catch (err) {
             await this.removeTempDir(tempDir);

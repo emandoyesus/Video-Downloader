@@ -334,12 +334,16 @@ async function processDownload(ctx, url, userId, audioOnly) {
           );
         } else {
           const caption = title ? (sizeStr ? `${title} • ${sizeStr}` : title) : (sizeStr ? `Downloaded • ${sizeStr}` : 'Downloaded');
+          const videoOptions = { 
+            caption,
+            supports_streaming: true 
+          };
+          if (result.thumbnail) {
+            videoOptions.poster = result.thumbnail;
+          }
           await ctx.replyWithVideo(
             { source: result.filePath },
-            { 
-              caption,
-              supports_streaming: true 
-            }
+            videoOptions
           );
         }
       } catch (sendErr) {
