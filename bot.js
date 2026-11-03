@@ -376,12 +376,27 @@ async function processDownload(ctx, url, userId, audioOnly) {
       } catch (err) {}
     } catch (err) {
       const errorMsg = err.message || 'Unknown error';
-      const sanitizedError = errorMsg
+      let sanitizedError = errorMsg
         .replace(/\/[^\s]+/g, '[path]')
         .replace(/password|token|key/gi, '[redacted]')
         .replace(/\s+/g, ' ')
         .substring(0, 160);
-      
+
+      // Provide more user-friendly error descriptions
+      if (sanitizedError.includes('timed out')) {
+        sanitizedError = 'Download timed out. The process took too long and was cancelled.';
+      } else if (sanitizedError.includes('FILE_TOO_LARGE') || sanitizedError.includes('413')) {
+        sanitizedError = 'File is too large for Telegram (over 50 MB limit).';
+      } else if (sanitizedError.includes('bot was blocked') || sanitizedError.includes('Forbidden')) {
+        sanitizedError = 'Could not send message: blocked or forbidden.';
+      } else if (sanitizedError.includes('No file downloaded')) {
+        sanitizedError = 'No file was downloaded. The link may be invalid or the video unavailable.';
+      } else if (sanitizedError.includes('File exceeds 50 MB limit')) {
+        sanitizedError = 'Downloaded file exceeds Telegram\'s 50 MB upload limit.';
+      } else if (sanitizedError.includes('Downloaded file is empty')) {
+        sanitizedError = 'Downloaded file is empty. The link may be invalid.';
+      }
+
       try {
         await ctx.telegram.editMessageText(
           ctx.chat.id,

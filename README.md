@@ -14,11 +14,23 @@ A Telegram bot built with Node.js (ES modules) that downloads videos from links 
 ## Limits and Safety
 
 - **50 MB limit** - Respects Bot API upload limit using `--max-filesize` and checks final file size
-- **Per-user lock + global queue** - One active download per user, plus global queue (p-queue) with limited concurrency (2)
+- **Per-user lock + global queue** - One active download per user, plus global queue (p-queue) with limited concurrency. Default concurrency is 4, configurable via `CONCURRENCY` environment variable.
 - **3-minute timeout** - 3-minute timeout per download, kills process if exceeded
 - **Temp files** - Downloads to temp directory per request, always deleted in finally block
 - **Handler timeout** - Telegraf handlerTimeout set to at least 5 minutes
 - **Security** - Never passes user input to shell, sanitizes error messages before showing to users
+
+## Common Error Messages
+
+Users may see the following friendly error messages instead of technical details:
+
+- **'Download timed out. The process took too long and was cancelled.'** - The download exceeded 3 minutes
+- **'File is too large for Telegram (over 50 MB limit).'** - Downloaded file exceeds Telegram's 50 MB upload limit
+- **'Could not send message: blocked or forbidden.'** - Telegram API returned forbidden/blocked error
+- **'No file was downloaded. The link may be invalid or the video was unavailable.'** - yt-dlp couldn't download anything from the URL
+- **'Downloaded file is empty. The link may be invalid or the video was removed.'** - Downloaded file has zero size
+- **'Failed to start yt-dlp. Is it installed and accessible in PATH?'** - yt-dlp binary not found
+- **'Failed to create temporary directory. Please check permissions or available space.'** - Could not create download temp directory
 
 ## Prerequisites
 

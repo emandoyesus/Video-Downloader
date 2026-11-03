@@ -67,7 +67,7 @@ export class DownloaderService {
       try {
         await this.ensureTempDir(tempDir);
       } catch (e) {
-        reject(new Error('Failed to create temp directory'));
+        reject(new Error('Failed to create temporary directory. Please check permissions or available space.'));
         return;
       }
 
@@ -144,7 +144,7 @@ export class DownloaderService {
             // ignore
           }
           cleanup();
-          reject(new Error('Download timed out (exceeded 3 minutes)'));
+          reject(new Error('Download timed out. The process took too long and was cancelled.'));
         }, DOWNLOAD_TIMEOUT_MS);
 
         let stderr = '';
@@ -176,7 +176,7 @@ export class DownloaderService {
         proc.on('error', async (err) => {
           await cleanup();
           await this.removeTempDir(tempDir);
-          reject(new Error(`Failed to start yt-dlp: ${err.message}`));
+          reject(new Error('Failed to start yt-dlp. Is it installed and accessible in PATH?'));
         });
 
         proc.on('close', async (code) => {
@@ -205,7 +205,7 @@ export class DownloaderService {
             const files = await fs.readdir(tempDir);
             if (files.length === 0) {
               await this.removeTempDir(tempDir);
-              reject(new Error('No file downloaded'));
+              reject(new Error('No file was downloaded. The link may be invalid or the video was removed.'));
               return;
             }
             // Get the largest file (the video)
@@ -233,12 +233,12 @@ export class DownloaderService {
 
             if (fileSize > MAX_FILESIZE_BYTES) {
               await this.removeTempDir(tempDir);
-              reject(new Error('File exceeds 50 MB limit'));
+              reject(new Error('Downloaded file exceeds Telegram\'s 50 MB upload limit.'));
               return;
             }
             if (fileSize === 0) {
               await this.removeTempDir(tempDir);
-              reject(new Error('Downloaded file is empty'));
+              reject(new Error('Downloaded file is empty. The link may be invalid or the video was removed.'));
               return;
             }
 
